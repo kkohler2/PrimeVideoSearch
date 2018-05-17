@@ -709,7 +709,7 @@ namespace AWSMovieLister
                         }
                     }
                 }
-                object existingRecord = context.Movie.Where(m => m.ClosedCaptioned == movie.ClosedCaptioned && m.Rating == movie.Rating && m.Released == movie.Released && m.RuntimeDisplay == movie.RuntimeDisplay && m.Title == movie.Title).FirstOrDefault<Movie>();
+                object existingRecord = context.Movie.Where(m => m.Released == movie.Released && m.Title == movie.Title).FirstOrDefault<Movie>();
                 if (existingRecord != null)
                 {
                     movie = (Movie)existingRecord;
