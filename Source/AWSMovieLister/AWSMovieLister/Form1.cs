@@ -138,39 +138,31 @@ namespace AWSMovieLister
                     int pos = result.IndexOf("Watch for 0.00 with a Prime membership");
                     movie.IsPrime = pos != -1;
 
-                    pos = result.IndexOf("id=\"reviewLink\"");
+                    pos = result.IndexOf("av-icon--amazon_rating");
                     int pos2;
                     int pos3;
                     if (pos != -1)
                     {
-                        pos = result.IndexOf("href", pos);
-                        if (pos != -1)
-                        {
-                            pos = result.IndexOf(">", pos);
-                            pos2 = result.IndexOf("<", pos);
-                            movie.Ratings = result.Substring(pos + 1, pos2 - pos - 1);
-                        }
+                        pos = result.IndexOf("(", pos);
+                        pos2 = result.IndexOf(")", pos);
+                        movie.Ratings = result.Substring(pos + 1, pos2 - pos - 1);
                     }
 
-                    pos = result.IndexOf("class=\"imdb-rating\"");
+                    pos = result.IndexOf("\"imdb-rating-badge\"");
                     if (pos != -1)
                     {
-                        pos = result.IndexOf("<strong>", pos);
-                        if (pos > -1)
+                        pos = result.IndexOf(">", pos);
+                        pos2 = result.IndexOf("<", pos);
+                        try
                         {
-                            pos = result.IndexOf(">", pos);
-                            pos2 = result.IndexOf("<", pos);
-                            try
-                            {
-                                movie.Imdbrating = Convert.ToSingle(result.Substring(pos + 1, pos2 - pos - 1));
-                            }
-                            catch (Exception)
-                            {
-                            }
+                            movie.Imdbrating = Convert.ToSingle(result.Substring(pos + 1, pos2 - pos - 1));
+                        }
+                        catch (Exception)
+                        {
                         }
                     }
 
-                    pos = result.IndexOf("dv-simple-synopsis");
+                    pos = result.IndexOf("\"synopsis\"");
                     if (pos != -1)
                     {
                         pos = result.IndexOf("<p", pos);
@@ -188,117 +180,128 @@ namespace AWSMovieLister
                         }
                     }
 
-                    pos = result.IndexOf("Genres");
-                    if (pos != -1)
+                    int posProductDetails = result.IndexOf("Product details");
+                    if (posProductDetails != -1)
                     {
-                        pos3 = result.IndexOf("</td>", pos);
-                        pos = result.IndexOf("<a", pos);
-                        while (pos < pos3 && pos != -1)
+                        int posOtherFormats = result.IndexOf("Other formats", posProductDetails);
+                        int posTR = -1;
+                        pos = result.IndexOf("Genres", posProductDetails);
+                        if (pos > posOtherFormats)
                         {
-                            pos = result.IndexOf(">", pos);
-                            pos2 = result.IndexOf("</a>", pos);
-                            try
+                            pos = -1;
+                        }
+                        if (pos != -1)
+                        {
+                            posTR = result.IndexOf("<tr", pos);
+                            pos3 = result.IndexOf("</td>", pos);
+                            pos = result.IndexOf("<a", pos);
+                            movie.Genres = string.Empty;
+                            while (pos < pos3 && pos < posTR && pos != -1)
                             {
-                                string genre = HttpUtility.HtmlDecode(result.Substring(pos + 1, pos2 - pos - 1));
-                                genres.Add(genre);
-                                genre += ", ";
-                                movie.Genres += genre;
-                                pos = result.IndexOf("<a", pos);
+                                if (pos >= posOtherFormats)
+                                {
+                                    break;
+                                }
+                                pos = result.IndexOf(">", pos);
+                                pos2 = result.IndexOf("</a>", pos);
+                                try
+                                {
+                                    string genre = HttpUtility.HtmlDecode(result.Substring(pos + 1, pos2 - pos - 1));
+                                    genres.Add(genre);
+                                    genre += ", ";
+                                    movie.Genres += genre;
+                                    pos = result.IndexOf("<a", pos);
+                                }
+                                catch (Exception)
+                                {
+                                }
                             }
-                            catch (Exception)
+                        }
+
+                        pos = result.IndexOf("Director", posProductDetails);
+                        if (pos != -1)
+                        {
+                            posTR = result.IndexOf("<tr", pos);
+                            pos3 = result.IndexOf("</td>", pos);
+                            pos = result.IndexOf("<a", pos);
+                            if (pos < pos3 && pos < posTR && pos != -1)
                             {
+                                pos = result.IndexOf(">", pos);
+                                pos2 = result.IndexOf("</a>", pos);
+                                try
+                                {
+                                    movie.Director = HttpUtility.HtmlDecode(result.Substring(pos + 1, pos2 - pos - 1));
+                                }
+                                catch (Exception)
+                                {
+                                }
+                            }
+                        }
+                        pos = result.IndexOf("Starring", posProductDetails);
+                        if (pos != -1)
+                        {
+                            posTR = result.IndexOf("<tr", pos);
+                            pos3 = result.IndexOf("</td>", pos);
+                            pos = result.IndexOf("<a", pos);
+                            movie.Starring = string.Empty;
+                            while (pos < pos3 && pos < posTR && pos != -1)
+                            {
+                                if (pos >= posOtherFormats)
+                                {
+                                    break;
+                                }
+                                pos = result.IndexOf(">", pos);
+                                pos2 = result.IndexOf("</a>", pos);
+                                try
+                                {
+                                    string data = HttpUtility.HtmlDecode(result.Substring(pos + 1, pos2 - pos - 1)) + ", ";
+                                    movie.Starring += data;
+                                    pos = result.IndexOf("<a", pos);
+                                }
+                                catch (Exception)
+                                {
+                                }
+                            }
+                            if (movie.Starring != null && movie.Starring.Length > 0)
+                            {
+                                movie.Starring = movie.Starring.Replace("  ", " ");
+                                movie.Starring = movie.Starring.Substring(0, movie.Starring.Length - 2);
+                            }
+                        }
+
+                        pos = result.IndexOf("Supporting actors", posProductDetails);
+                        if (pos != -1)
+                        {
+                            posTR = result.IndexOf("<tr", pos);
+                            pos3 = result.IndexOf("</td>", pos);
+                            pos = result.IndexOf("<a", pos);
+                            movie.SupportingActors = string.Empty;
+                            while (pos < pos3 && pos < posTR && pos != -1)
+                            {
+                                if (pos >= posOtherFormats)
+                                {
+                                    break;
+                                }
+                                pos = result.IndexOf(">", pos);
+                                pos2 = result.IndexOf("</a>", pos);
+                                try
+                                {
+                                    string data = HttpUtility.HtmlDecode(result.Substring(pos + 1, pos2 - pos - 1)) + ", ";
+                                    movie.SupportingActors += data;
+                                    pos = result.IndexOf("<a", pos);
+                                }
+                                catch (Exception)
+                                {
+                                }
+                            }
+                            if (movie.SupportingActors != null && movie.SupportingActors.Length > 0)
+                            {
+                                movie.SupportingActors = movie.SupportingActors.Replace("  ", " ");
+                                movie.SupportingActors = movie.SupportingActors.Substring(0, movie.SupportingActors.Length - 2);
                             }
                         }
                     }
 
-                    pos = result.IndexOf("Director\r");
-                    if (pos == -1)
-                    {
-                        pos = result.IndexOf("Director\n");
-                    }
-                    if (pos != -1)
-                    {
-                        pos3 = result.IndexOf("</td>", pos);
-                        pos = result.IndexOf("<a", pos);
-                        if (pos < pos3 && pos != -1)
-                        {
-                            pos = result.IndexOf(">", pos);
-                            pos2 = result.IndexOf("</a>", pos);
-                            try
-                            {
-                                movie.Director = HttpUtility.HtmlDecode(result.Substring(pos + 1, pos2 - pos - 1));
-                            }
-                            catch (Exception)
-                            {
-                            }
-                        }
-                    }
-
-                    pos = result.IndexOf("Starring\r");
-                    if (pos == -1)
-                    {
-                        pos = result.IndexOf("Starring\n");
-                    }
-                    pos2 = result.IndexOf("Starring:");
-                    if (pos == pos2)
-                    {
-                        pos = result.IndexOf("Starring", pos2 + 1);
-                    }
-                    if (pos != -1)
-                    {
-                        pos3 = result.IndexOf("</td>", pos);
-                        pos = result.IndexOf("<a", pos);
-                        while (pos < pos3 && pos != -1)
-                        {
-                            pos = result.IndexOf(">", pos);
-                            pos2 = result.IndexOf("</a>", pos);
-                            try
-                            {
-                                string data = HttpUtility.HtmlDecode(result.Substring(pos + 1, pos2 - pos - 1)) + ", ";
-                                movie.Starring += data;
-                                pos = result.IndexOf("<a", pos);
-                            }
-                            catch (Exception)
-                            {
-                            }
-                        }
-                        if (movie.Starring != null && movie.Starring.Length > 0)
-                        {
-                            movie.Starring = movie.Starring.Replace("  ", " ");
-                            movie.Starring = movie.Starring.Substring(0, movie.Starring.Length - 2);
-                        }
-                    }
-
-
-                    pos = result.IndexOf("Supporting actors\r");
-                    if (pos == -1)
-                    {
-                        pos = result.IndexOf("Supporting actors\n");
-                    }
-                    if (pos != -1)
-                    {
-                        pos3 = result.IndexOf("</td>", pos);
-                        pos = result.IndexOf("<a", pos);
-                        while (pos < pos3 && pos != -1)
-                        {
-                            pos = result.IndexOf(">", pos);
-                            pos2 = result.IndexOf("</a>", pos);
-                            try
-                            {
-                                string data = HttpUtility.HtmlDecode(result.Substring(pos + 1, pos2 - pos - 1)) + ", ";
-                                movie.SupportingActors += data;
-                                pos = result.IndexOf("<a", pos);
-                            }
-                            catch (Exception)
-                            {
-                            }
-                        }
-                        if (movie.SupportingActors != null && movie.SupportingActors.Length > 0)
-                        {
-                            movie.SupportingActors = movie.SupportingActors.Replace("  ", " ");
-                            movie.SupportingActors = movie.SupportingActors.Substring(0, movie.SupportingActors.Length - 2);
-                        }
-                    }
                     context.SaveChanges();
                     foreach (string _genre in genres)
                     {
@@ -597,7 +600,6 @@ namespace AWSMovieLister
                 Movie movie = new Movie();
                 movie.DataSin = dataSin;
 
-                //Movie movie = new Movie();
                 pos = _movie.IndexOf("out of 5 stars");
                 if (pos != -1)
                 {
@@ -709,12 +711,18 @@ namespace AWSMovieLister
                         }
                     }
                 }
-                object existingRecord = context.Movie.Where(m => m.Released == movie.Released && m.Title == movie.Title).FirstOrDefault<Movie>();
+                var existingRecord = context.Movie.Where(m => m.Released == movie.Released && m.Title == movie.Title).FirstOrDefault<Movie>();
                 if (existingRecord != null)
                 {
-                    movie = (Movie)existingRecord;
-                    movie.Updated = DateTime.Now;
-                    context.SaveChanges();
+                    try
+                    {
+                        context.Remove(movie);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    movie = null;
                     continue;
                 }
 
@@ -787,7 +795,6 @@ namespace AWSMovieLister
                 Tvseries tvSeries = new Tvseries();
                 tvSeries.DataSin = dataSin;
 
-                //Movie movie = new Movie();
                 pos = _tvshow.IndexOf("out of 5 stars");
                 if (pos != -1)
                 {
@@ -859,12 +866,18 @@ namespace AWSMovieLister
                         }
                     }
                 }
-                object existingRecord = context.Tvseries.Where(t => t.ClosedCaptioned == tvSeries.ClosedCaptioned && t.Released == tvSeries.Released && t.Title == tvSeries.Title).FirstOrDefault<Tvseries>();
+                object existingRecord = context.Tvseries.Where(t => t.Released == tvSeries.Released && t.Title == tvSeries.Title).FirstOrDefault<Tvseries>();
                 if (existingRecord != null)
                 {
-                    tvSeries = (Tvseries)existingRecord;
-                    tvSeries.Updated = DateTime.Now;
-                    context.SaveChanges();
+                    try
+                    {
+                        context.Remove(tvSeries);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    tvSeries = null;
                     continue;
                 }
                 context.Add(tvSeries);
