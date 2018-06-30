@@ -9,15 +9,15 @@
         });
     }
 
-    function precisionRound(number, precision) {
-        var factor = Math.pow(10, precision);
+    function precisionRound(number: number, precision: number): number {
+        var factor: number = Math.pow(10, precision);
         return Math.round(number * factor) / factor;
     }
 
     class ViewModel {
         constructor(metadata: IMovieMetadata) {
-            var self = this;
-            var pages = Math.floor(metadata.count / this.pageSize());
+            var self: ViewModel = this;
+            var pages: number = Math.floor(metadata.count / this.pageSize());
             if (metadata.count % this.pageSize()) {
                 pages++;
             }
@@ -26,18 +26,18 @@
             this.metadata = metadata;
             this.count = metadata.count;
             this.genres(metadata.genres);
-            this.mpaaRating.subscribe(function (e) {
+            this.mpaaRating.subscribe(function (e: any): void {
                 vm.search(true,1);
             });
             this.pages(pages);
-            this.pageSize.subscribe(function (e) {
+            this.pageSize.subscribe(function (e: any): void {
                 vm.search(true, 1);
             });
             this.searchCount = metadata.count;
-            this.selectedGenres.subscribe(function (e) {
+            this.selectedGenres.subscribe(function (e: any): void {
                 vm.search(true,1);
             });
-            this.sortOrder.subscribe(function (e) {
+            this.sortOrder.subscribe(function (e: any): void {
                 vm.search(true,1);
             });
             this.yearMinimum = metadata.releasedMinimumYear;
@@ -46,79 +46,79 @@
             this.releasedMinimumYear(metadata.releasedMinimumYear);
             this.runtimeMaximum(metadata.runtimeMaximum);
             this.runtimeMinimum(metadata.runtimeMinimum);
-            this.titleSearch.subscribe(function (e) {
+            this.titleSearch.subscribe(function (e: any): void {
                 if (vm.searchTimer) {
                     clearTimeout(vm.searchTimer);
                     vm.searchTimer = null;
                 }
-                vm.searchTimer = setTimeout(function () {
+                vm.searchTimer = setTimeout(function (): void {
                     vm.search(true,1);
                 }, self.timerValue);
             });
-            this.wildcardSearch.subscribe(function (e) {
+            this.wildcardSearch.subscribe(function (e: any): void {
                 if (vm.titleSearch().length) {
                     vm.search(true,1);
                 }
             });
-            var yearSlider = $("#yearSlider")[0];
+            var yearSlider: any = $("#yearSlider")[0];
             noUiSlider.create(yearSlider, {
                 start: [this.releasedMinimumYear(), this.releasedMaximumYear()],
                 connect: true,
                 range: {
-                    'min': this.releasedMinimumYear(),
-                    'max': this.releasedMaximumYear()
+                    "min": this.releasedMinimumYear(),
+                    "max": this.releasedMaximumYear()
                 }
             });
-            (<any>yearSlider).noUiSlider.on('update', function (values, handle) {
+            (<any>yearSlider).noUiSlider.on("update", function (values: number[], handle: any): void {
                 if (self.searchTimer) {
                     clearTimeout(self.searchTimer);
                     self.searchTimer = null;
                 }
                 self.releasedMinimumYear(Math.round(values[0]));
                 self.releasedMaximumYear(Math.round(values[1]));
-                self.searchTimer = setTimeout(function () {
+                self.searchTimer = setTimeout(function (): void {
                     self.search(true,1);
                 }, self.timerValue);
             });
 
-            var imdbSlider = $("#imdbSlider")[0];
+            var imdbSlider: any = $("#imdbSlider")[0];
             noUiSlider.create(imdbSlider, {
                 start: [this.imdbRatingMinimum(), this.imdbRatingMaximum()],
                 connect: true,
                 range: {
-                    'min': this.imdbRatingMinimum(),
-                    'max': this.imdbRatingMaximum()
+                    "min": this.imdbRatingMinimum(),
+                    "max": this.imdbRatingMaximum()
                 }
             });
-            (<any> imdbSlider).noUiSlider.on('update', function (values, handle) {
+            (<any> imdbSlider).noUiSlider.on("update", function (values: number[], handle: any): void {
                 if (self.searchTimer) {
                     clearTimeout(self.searchTimer);
                     self.searchTimer = null;
                 }
                 self.imdbRatingMinimum(precisionRound(values[0],1));
                 self.imdbRatingMaximum(precisionRound(values[1],1));
-                self.searchTimer = setTimeout(function () {
+                self.searchTimer = setTimeout(function (): void {
                     self.search(true,1);
                 }, self.timerValue);
             });
 
-            var runtimeSlider = $("#runtimeSlider")[0];
+            var runtimeSlider: any = $("#runtimeSlider")[0];
             noUiSlider.create(runtimeSlider, {
                 start: [this.runtimeMinimum(), this.runtimeMaximum()],
                 connect: true,
                 range: {
-                    'min': this.runtimeMinimum(),
-                    'max': this.runtimeMaximum()
+                    "min": this.runtimeMinimum(),
+                    "max": this.runtimeMaximum()
                 }
             });
-            (<any> runtimeSlider).noUiSlider.on('update', function (values, handle) {
+            (<any> runtimeSlider).noUiSlider.on("update", function (values: number[], handle: any): void {
                 if (self.searchTimer) {
                     clearTimeout(self.searchTimer);
                     self.searchTimer = null;
                 }
                 self.runtimeMinimum(Math.round(values[0]));
                 self.runtimeMaximum(Math.round(values[1]));
-                self.searchTimer = setTimeout(function () {
+                self.searchTimer = setTimeout(function (): void {
                     self.search(true,1);
                 }, self.timerValue);
             });
@@ -130,6 +130,7 @@
         public genres: KnockoutObservableArray<IGenreCount> = ko.observableArray([]);
         public imdbRatingMinimum: KnockoutObservable<number> = ko.observable(0);
         public imdbRatingMaximum: KnockoutObservable<number> = ko.observable(10);
+        public view: KnockoutObservable<string> = ko.observable("list");
         public metadata: IMovieMetadata;
         public movies: KnockoutObservableArray<IMovie> = ko.observableArray([]);
         public mpaaRating: KnockoutObservable<string> = ko.observable("");
@@ -150,13 +151,15 @@
         public yearMaximum: number;
         public yearMinimum: number;
 
-        public backClick = function () {
+        public backClick = function (): void {
             vm.search(false, vm.page() - 1);
-        }
-        public nextClick = function () {
+        };
+        public listView = function (): void {
+            vm.view("list");
+        };
+        public nextClick = function (): void {
             vm.search(false, vm.page() + 1);
-        }
-
+        };
         private search = function (returnCount: boolean, searchPage: number): void {
             var movieSearchCriteria: IMovieSearchCriteria = {
                 page: searchPage,
@@ -198,12 +201,11 @@
                     vm.count = results.count;
                     if (results.count === 0) {
                         vm.page(0);
-                        vm.pages(0)
+                        vm.pages(0);
                         vm.enableBackButton(false);
                         vm.enableNextButton(false);
-                    }
-                    else {
-                        var pages = Math.floor(results.count / vm.pageSize());
+                    } else {
+                        var pages: number = Math.floor(results.count / vm.pageSize());
                         if (results.count % vm.pageSize()) {
                             pages++;
                         }
@@ -212,8 +214,7 @@
                         vm.enableBackButton(false);
                         vm.enableNextButton(pages > 1);
                     }
-                }
-                else {
+                } else {
                     vm.page(results.page);
                     vm.enableBackButton(vm.page() > 1);
                     vm.enableNextButton(results.page < vm.pages());
@@ -222,8 +223,11 @@
                 vm.movies(results.movies);
             });
         };
+        public tileView = function (): void {
+            vm.view("tile");
+        };
 
-        public tvClick = function () {
+        public tvClick = function (): void {
             window.location.href = "./tvseries.html";
         }
 

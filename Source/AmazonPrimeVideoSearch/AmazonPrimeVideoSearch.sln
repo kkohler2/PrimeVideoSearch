@@ -22,4 +22,13 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07D1A477-107C-44DD-BC8E-990BD1E60001}
 	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 2
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://kkohler.visualstudio.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = AmazonPrimeVideoSearch\\AmazonPrimeVideoSearch.csproj
+		SccProjectName1 = AmazonPrimeVideoSearch
+		SccLocalPath1 = AmazonPrimeVideoSearch
+	EndGlobalSection
 EndGlobal

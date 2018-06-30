@@ -10,128 +10,161 @@ https://refreshless.com/nouislider/
 <html>
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm">
-    <link rel="stylesheet" href="css/nouislider.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" />
+    <link rel="stylesheet" href="css/nouislider.min.css" />
+    <link rel="stylesheet" href="css/fontawesome-all.min.css" />
     <title></title>
 </head>
 <body>
-    <div style="padding: 5px 5px 5px 5px">
-        <table>
-            <tr style="vertical-align: top">
-                <td style="width:250px">
-                    <table>
+
+    <div style="padding: 5px 5px 5px 5px" class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2"><!--ko text: count--><!--/ko-->&nbsp;Movies</div>
+            <div class="col-auto">
+                <input placeholder="Title..." data-bind="textInput: titleSearch" />
+                &nbsp;&nbsp;Page Size
+                <select data-bind="value: pageSize">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="250">250</option>
+                    <option value="500">500</option>
+                </select>&nbsp;&nbsp;&nbsp;<button class="btn btn-primary" data-bind="click: tvClick">TV Shows</button>
+                <!--ko if: view() === 'tile'-->
+                <button data-bind="click: listView" class="btn btn-light">
+                    <i class="fa fa-list fa-2x"></i>
+                </button>
+                <!--/ko-->
+                <!--ko if: view() === 'list'-->
+                <button data-bind="click: tileView" class="btn btn-light">
+                    <i class="fa fa-th fa-2x"></i>
+                </button>
+                <!--/ko-->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                Sort by&nbsp;
+                <select data-bind="value: sortOrder">
+                    <option value="Title">Title</option>
+                    <option value="IMDB">IMDB Rating (desc)</option>
+                    <option value="Runtime">Runtime (desc)</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <input type="checkbox" data-bind="checked: wildcardSearch" />&nbsp;Wildcard Search
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="row">
+                    <div class="col-auto">
+                        MPAA Rating&nbsp;
+                        <select data-bind="value: mpaaRating">
+                            <option value="">All</option>
+                            <option value="G">G</option>
+                            <option value="PG">PG</option>
+                            <option value="PG-13">PG-13</option>
+                            <option value="R">R</option>
+                            <option value="NC-17">NC-17</option>
+                            <option value="null">N/A</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        Year&nbsp;<!--ko text: releasedMinimumYear--><!--/ko--> to <!--ko text: releasedMaximumYear --><!--/ko--><br />
+                        <div id="yearSlider" style="padding-left: 15px"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        IMDB Rating&nbsp;<!--ko text: imdbRatingMinimum--><!--/ko--> to <!--ko text: imdbRatingMaximum --><!--/ko--><br />
+                        <div id="imdbSlider" style="padding-left: 15px"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        Runtime (minutes)&nbsp;<!--ko text: runtimeMinimum--><!--/ko--> to <!--ko text: runtimeMaximum --><!--/ko--><br />
+                        <div id="runtimeSlider" style="padding-left: 15px"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        Genres<br />
+                        <ul data-bind="foreach: genres">
+                            <li>
+                                <input type="checkbox" data-bind="checkedValue: name, checked: $parent.selectedGenres">
+                                <span data-bind="text: name"></span>&nbsp;<span class="badge" data-bind="text: count"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!--ko if: view() === 'list'-->
+            <div class="col-10">
+                <div data-bind="foreach: movies">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <a data-bind="attr: { href: url }" target="_blank"><img data-bind="attr: { src: image }" alt="Image Not Available" /></a>
+                        </div>
+                        <div class="col-sm-10">
+                            <a data-bind="attr: { href: url }" target="_blank"><!--ko text: title--><!--/ko--></a> <b>(<!--ko text: released--><!--/ko-->)</b> <!--ko text: rating--><!--/ko--><br />
+                            <!--ko text: plot--><!--/ko--><br />
+                            Run time: <!--ko text: runtimeDisplay--><!--/ko--><br />
+                            <!--ko text: genres--><!--/ko--><br />
+                            <!-- ko if: imdbrating -->
+                            IMDB Rating <b><!--ko text: imdbrating--><!--/ko--></b><br />
+                            <!-- /ko -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 10px">
+                    <div class="col-auto"><button class="btn btn-primary" data-bind="enable: enableBackButton, click: backClick">Previous</button></div>
+                    <div class="col-auto"><div style="width: 300px; text-align:center">Page <!--ko text: page--><!--/ko--> of <!--ko text: pages--><!--/ko--></div></div>
+                    <div class="col-auto"><button class="btn btn-primary" data-bind="enable: enableNextButton, click: nextClick">Next</button></div>
+                </div>
+            </div>
+            <!-- /ko -->
+            <!--FIX TILE VIEW!!!-->
+            <!--ko if: view() === 'tile'-->
+            <div class="col-10">
+                <table>
+                    <tbody data-bind="foreach: movies">
+                        <!-- ko if: $index() % 5 == 0 -->
                         <tr>
-                            <td><!--ko text: count--><!--/ko-->&nbsp;Movies</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Sort by&nbsp;
-                                <select data-bind="value: sortOrder">
-                                    <option value="Title">Title</option>
-                                    <option value="IMDB">IMDB Rating (desc)</option>
-                                    <option value="Runtime">Runtime (desc)</option>
-                                </select>
+                            <td class="col-xs-2">
+                                <a data-bind="attr: { href: $parent.movies()[$index()].url }" target="_blank"><img data-bind="attr: { src: $parent.movies()[$index()].image }" alt="Image Not Available" /></a>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                MPAA Rating&nbsp;
-                                <select data-bind="value: mpaaRating">
-                                    <option value="">All</option>
-                                    <option value="G">G</option>
-                                    <option value="PG">PG</option>
-                                    <option value="PG-13">PG-13</option>
-                                    <option value="R">R</option>
-                                    <option value="NC-17">NC-17</option>
-                                    <option value="null">N/A</option>
-                                </select>
+                            <!-- ko if: $parent.movies()[$index()+1] -->
+                            <td class="col-xs-2">
+                                <a data-bind="attr: { href: $parent.movies()[$index()+1].url }" target="_blank"><img data-bind="attr: { src: $parent.movies()[$index()+1].image }" alt="Image Not Available" /></a>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Year&nbsp;<!--ko text: releasedMinimumYear--><!--/ko--> to <!--ko text: releasedMaximumYear --><!--/ko--><br />
-                                <div id="yearSlider"></div>
+                            <!-- /ko -->
+                            <!-- ko if: $parent.movies()[$index()+2] -->
+                            <td class="col-xs-2">
+                                <a data-bind="attr: { href: $parent.movies()[$index()+2].url }" target="_blank"><img data-bind="attr: { src: $parent.movies()[$index()+2].image }" alt="Image Not Available" /></a>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                IMDB Rating&nbsp;<!--ko text: imdbRatingMinimum--><!--/ko--> to <!--ko text: imdbRatingMaximum --><!--/ko--><br />
-                                <div id="imdbSlider"></div>
+                            <!-- /ko -->
+                            <!-- ko if: $parent.movies()[$index()+3] -->
+                            <td class="col-xs-2">
+                                <a data-bind="attr: { href: $parent.movies()[$index()+3].url }" target="_blank"><img data-bind="attr: { src: $parent.movies()[$index()+3].image }" alt="Image Not Available" /></a>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Runtime (minutes)&nbsp;<!--ko text: runtimeMinimum--><!--/ko--> to <!--ko text: runtimeMaximum --><!--/ko--><br />
-                                <div id="runtimeSlider"></div>
+                            <!-- /ko -->
+                            <!-- ko if: $parent.movies()[$index()+4] -->
+                            <td class="col-xs-2">
+                                <a data-bind="attr: { href: $parent.movies()[$index()+4].url }" target="_blank"><img data-bind="attr: { src: $parent.movies()[$index()+4].image }" alt="Image Not Available" /></a>
                             </td>
+                            <!-- /ko -->
                         </tr>
-                        <tr>
-                            <td>
-                                Genres<br />
-                                <ul data-bind="foreach: genres">
-                                    <li>
-                                        <input type="checkbox" data-bind="checkedValue: name, checked: $parent.selectedGenres">
-                                        <span data-bind="text: name"></span>
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-                <td>
-                    <table>
-                        <tr>
-                            <td>
-                                <input placeholder="Title..." data-bind="textInput: titleSearch" />&nbsp;&nbsp;Page Size 
-                                <select data-bind="value: pageSize">
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>&nbsp;&nbsp;&nbsp;<button class="btn btn-primary" data-bind="click: tvClick">TV Shows</button>
-                                <br />
-                                <input type="checkbox" data-bind="checked: wildcardSearch" />&nbsp;Wildcard Search
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <table>
-                                    <!-- todo: stars, use "font" for ratings, Closed Captioned -->
-                                    <tbody data-bind="foreach: movies">
-                                        <tr style="vertical-align: top">
-                                            <td>
-                                                <a data-bind="attr: { href: url }" target="_blank"><img data-bind="attr: { src: image }" alt="Image Not Available" /></a>
-                                            </td>
-                                            <td>
-                                                <a data-bind="attr: { href: url }" target="_blank"><!--ko text: title--><!--/ko--></a> <b>(<!--ko text: released--><!--/ko-->)</b> <!--ko text: rating--><!--/ko--><br />
-                                                <!--ko text: plot--><!--/ko--><br />
-                                                Run time: <!--ko text: runtimeDisplay--><!--/ko--><br />
-                                                <!--ko text: genres--><!--/ko--><br />
-                                                <!-- ko if: imdbrating -->
-                                                IMDB Rating <b><!--ko text: imdbrating--><!--/ko--></b><br />
-                                                <!-- /ko -->
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <table>
-                                    <tr>
-                                        <td><button class="btn btn-primary" data-bind="enable: enableBackButton, click: backClick">Previous</button></td>
-                                        <td style="width: 300px; text-align:center">Page <!--ko text: page--><!--/ko--> of <!--ko text: pages--><!--/ko--></td>
-                                        <td><button class="btn btn-primary" data-bind="enable: enableNextButton, click: nextClick">Next</button></td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
+                        <!-- /ko -->
+                    </tbody>
+                </table>
+            </div>
+            <!--/ko-->
+        </div>
     </div>
     <script src="Scripts/jquery.min.js"></script>
     <script src="Scripts/popper.min.js"></script>

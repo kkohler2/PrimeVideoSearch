@@ -50,7 +50,7 @@ https://refreshless.com/nouislider/
                                 <ul data-bind="foreach: genres">
                                     <li>
                                         <input type="checkbox" data-bind="checkedValue: name, checked: $parent.selectedGenres">
-                                        <span data-bind="text: name"></span>
+                                        <span data-bind="text: name"></span>&nbsp;<span class="badge" data-bind="text: count"></span>
                                     </li>
                                 </ul>
                             </td>

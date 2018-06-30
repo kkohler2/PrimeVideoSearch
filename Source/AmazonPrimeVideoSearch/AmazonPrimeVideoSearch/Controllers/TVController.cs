@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AmazonPrimeVideoSearch.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class TVController : Controller
     {
         readonly ITVRepository _tvRepository;
